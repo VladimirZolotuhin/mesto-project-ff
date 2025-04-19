@@ -33,6 +33,8 @@ buttonOpenFormEditProfile.addEventListener('click', function () {
   openPopup(popupEdit)
 })
 
+profileAvatar.src = './images/avatar.jpg'
+
 buttonOpenFormAddCard.addEventListener('click', function () {
   openPopup(popupNew)
 })
