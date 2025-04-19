@@ -1,7 +1,12 @@
-import './pages/index.css'
-import { initialCards } from './scripts/cards.js'
-import { addCard, deleteCard, toggleLike } from './scripts/card.js'
-import { openPopup, closePopup } from './scripts/modal.js'
+import '../pages/index.css'
+import { initialCards } from './components/cards.js'
+import { addCard, deleteCard, toggleLike } from './components/card.js'
+import {
+  openPopup,
+  closePopup,
+  closeByOverlay,
+  closeByEsc,
+} from './components/modal.js'
 
 initialCards.forEach((item) => {
   const newCard = addCard(item, deleteCard, toggleLike, openImagePopup)
