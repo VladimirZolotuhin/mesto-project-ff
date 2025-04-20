@@ -10,10 +10,9 @@ export function closePopup(popup) {
   document.removeEventListener('keydown', closeByEsc)
 }
 
-export function closeByEsc(evt) {
-  if (evt.keyCode === ESC_KEYCODE) {
-    const openedPopup = document.querySelector('.popup_is-opened')
-    if (openedPopup) closePopup(openedPopup)
+export function handleEscClose(evt) {
+  if (evt.key === 'Escape') {
+    closePopup(document.querySelector('.popup_opened'))
   }
 }
 

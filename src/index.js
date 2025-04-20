@@ -31,9 +31,9 @@ const formAddCard = document.querySelector('form[name="new-place"]')
 const cardNameInput = document.querySelector('.popup__input_type_card-name')
 const cardUrlInput = document.querySelector('.popup__input_type_url')
 const popupImageContent = popupImage.querySelector('.popup__image')
-const popupCaption = popupImage.querySelector('.popup__caption')
-const name = document.querySelector('.profile__title')
-const job = document.querySelector('.profile__description')
+const popupImageCaption = popupImage.querySelector('.popup__caption')
+const profileName = document.querySelector('.profile__title')
+const profileJob = document.querySelector('.profile__description')
 
 buttonOpenFormEditProfile.addEventListener('click', function () {
   nameInput.value = name.textContent
@@ -47,13 +47,6 @@ buttonOpenFormAddCard.addEventListener('click', function () {
   cardNameInput.value = ''
   cardUrlInput.value = ''
   openPopup(popupNew)
-})
-
-document.addEventListener('keydown', function (evt) {
-  if (evt.key === 'Escape') {
-    const openedPopup = document.querySelector('.popup_is-opened')
-    if (openedPopup) closePopup(openedPopup)
-  }
 })
 
 popupAll.forEach((popup) => {
@@ -70,7 +63,7 @@ formAddCard.addEventListener('submit', handleCardSubmit)
 function openImagePopup(card) {
   popupImageContent.src = card.link
   popupImageContent.alt = card.name
-  popupCaption.textContent = card.name
+  popupImageCaption.textContent = card.name
   openPopup(popupImage)
 }
 
@@ -78,8 +71,8 @@ function submitEditProfileForm(evt) {
   evt.preventDefault()
   const jobValue = jobInput.value
   const nameValue = nameInput.value
-  job.textContent = jobValue
-  name.textContent = nameValue
+  profileJob.textContent = jobValue
+  profileName.textContent = nameValue
   closePopup(popupEdit)
 }
 
