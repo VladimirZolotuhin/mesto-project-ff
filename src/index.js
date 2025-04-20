@@ -5,7 +5,7 @@ import {
   openPopup,
   closePopup,
   closeByOverlay,
-  closeByEsc,
+  closeByCrossButtonClick,
 } from './components/modal.js'
 
 // @todo: Темплейт карточки
@@ -36,8 +36,8 @@ const profileName = document.querySelector('.profile__title')
 const profileJob = document.querySelector('.profile__description')
 
 buttonOpenFormEditProfile.addEventListener('click', function () {
-  nameInput.value = name.textContent
-  jobInput.value = job.textContent
+  nameInput.value = profileName.textContent
+  jobInput.value = profileJob.textContent
   openPopup(popupEdit)
 })
 
@@ -50,11 +50,8 @@ buttonOpenFormAddCard.addEventListener('click', function () {
 })
 
 popupAll.forEach((popup) => {
-  popup.addEventListener('mousedown', (evt) => {
-    if (evt.target.classList.contains('popup__close') || evt.target === popup) {
-      closePopup(popup)
-    }
-  })
+  popup.addEventListener('mousedown', closeByOverlay)
+  popup.addEventListener('mousedown', closeByCrossButtonClick)
 })
 
 formEditProfile.addEventListener('submit', submitEditProfileForm)
@@ -78,7 +75,6 @@ function submitEditProfileForm(evt) {
 
 function handleCardSubmit(evt) {
   evt.preventDefault()
-  console.log('Form submitted') // Для отладки
 
   const cardUrlValue = cardUrlInput.value
   const cardNameValue = cardNameInput.value
