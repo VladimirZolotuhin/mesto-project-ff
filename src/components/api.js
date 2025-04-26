@@ -41,6 +41,13 @@ export function addNewCard({ name, link }) {
   }).then(checkResponse)
 }
 
+export function checkResponse(res) {
+  if (res.ok) {
+    return res.json()
+  }
+  return Promise.reject(`Ошибка: ${res.status}`)
+}
+
 export const deleteCardFetch = (cardId) => {
   return fetch(`${config.baseUrl}/cards/${cardId}`, {
     method: 'DELETE',

@@ -1,4 +1,5 @@
 import '../pages/index.css'
+
 import {
   initialCards,
   loadUserData,
@@ -12,7 +13,6 @@ import {
   openPopup,
   closePopup,
   closeByOverlay,
-  closeByEsc,
   closeByCrossButtonClick,
 } from './components/modal.js'
 import { enableValidation, resetValidation } from './components/validation.js'
@@ -60,11 +60,10 @@ openFormEditAvatar.addEventListener('click', function () {
 })
 
 popupAll.forEach((popup) => {
-  popup.addEventListener('click', closeByOverlay)
-})
-
-popupAll.forEach((popup) => {
-  popup.addEventListener('click', closeByCrossButtonClick)
+  popup.addEventListener('click', (evt) => {
+    closeByOverlay(evt)
+    closeByCrossButtonClick(evt)
+  })
 })
 
 formEditProfile.addEventListener('submit', submitEditProfileForm)
@@ -112,7 +111,6 @@ function submitEditAvatarForm(evt) {
       document.querySelector(
         '.profile__image'
       ).style.backgroundImage = `url('${updatedUser.avatar}')`
-      console.log(updatedUser.avatar)
       closePopup(popupAvatar)
       formEditAvatar.reset()
     })
@@ -174,11 +172,14 @@ Promise.all([loadUserData(), initialCards()])
     currentUserId = userData._id
     name.textContent = userData.name
     job.textContent = userData.about
+
     if (userData.avatar) {
       document.querySelector(
         '.profile__image'
       ).style.backgroundImage = `url('${userData.avatar}')`
     }
+
+    const cardFragment = document.createDocumentFragment()
     cardsData.forEach((item) => {
       const newCard = addCard(
         item,
@@ -188,8 +189,9 @@ Promise.all([loadUserData(), initialCards()])
         currentUserId,
         deleteCardFetch
       )
-      listCard.append(newCard)
+      cardFragment.append(newCard)
     })
+    listCard.append(cardFragment)
   })
   .catch((err) => {
     console.log('Ошибка при загрузке данных:', err)
