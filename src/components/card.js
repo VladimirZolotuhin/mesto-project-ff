@@ -1,76 +1,79 @@
-import { addLike, removeLike } from './api'
+import { addLike, removeLike, deleteCardFetch } from './api.js'
 
-const cardTemplate = document.querySelector('#card-template').content
-function getCardTemplate() {
-  return cardTemplate.querySelector('.card').cloneNode(true)
-}
-
-export function addCard(
+export function createCard(
   dataCard,
-  deleteCard,
   toggleLike,
   openImagePopup,
-  currentUserId,
-  deleteCardFetch
+  currentUserId
 ) {
-  const cardElement = getCardTemplate()
+  const cardTemplate = document.querySelector('#card-template').content
+  const cardElement = cardTemplate.querySelector('.card').cloneNode(true)
   const cardImage = cardElement.querySelector('.card__image')
+  const cardTitle = cardElement.querySelector('.card__title')
+  const likeButton = cardElement.querySelector('.card__like-button')
+  const deleteButton = cardElement.querySelector('.card__delete-button')
+  const likeCounter = cardElement.querySelector('.card__like-counter')
+
   cardImage.src = dataCard.link
   cardImage.alt = dataCard.name
-  cardElement.querySelector('.card__title').textContent = dataCard.name
-  const deleteButton = cardElement.querySelector('.card__delete-button')
-  if (dataCard.owner._id !== currentUserId) {
-    deleteButton.remove()
-  }
-  deleteButton.addEventListener('click', function () {
-    deleteCard(deleteButton, deleteCardFetch, dataCard._id)
-  })
-
-  const likeButton = cardElement.querySelector('.card__like-button')
-  const likeCounter = cardElement.querySelector('.card__like-counter')
+  cardTitle.textContent = dataCard.name
   likeCounter.textContent = dataCard.likes.length
+
   const isLiked = dataCard.likes.some((like) => like._id === currentUserId)
   if (isLiked) {
-    likeButton.classList.add('card__like-button_is-active')
+    likeButton.classList.add('card__like-button_active')
   }
-  likeButton.addEventListener('click', (evt) => {
-    toggleLike(evt, dataCard._id, likeCounter)
+
+  if (dataCard.owner._id !== currentUserId) {
+    deleteButton.style.display = 'none'
+  }
+
+  likeButton.addEventListener('click', () => {
+    const isCurrentlyLiked = likeButton.classList.contains(
+      'card__like-button_active'
+    )
+    const likePromise = isCurrentlyLiked
+      ? removeLike(dataCard._id)
+      : addLike(dataCard._id)
+    likePromise
+      .then((updatedCard) => {
+        toggleLike(likeButton, updatedCard)
+      })
+      .catch((err) => console.log(err))
   })
-  cardImage.addEventListener('click', function () {
+
+  deleteButton.addEventListener('click', () => {
+    const confirmForm = document.querySelector('.popup__form_type_confirm')
+    confirmForm.dataset.cardId = dataCard._id
+    confirmForm.onSubmit = (evt) => {
+      evt.preventDefault()
+      const submitButton = evt.target.querySelector('.popup__button')
+      setLoadingState(submitButton, true)
+
+      deleteCardFetch(dataCard._id)
+        .then(() => {
+          cardElement.remove()
+          closePopup(document.querySelector('.popup_type_confirm'))
+        })
+        .catch((err) => console.log(err))
+        .finally(() => setLoadingState(submitButton, false, 'Да'))
+    }
+    openPopup(document.querySelector('.popup_type_confirm'))
+  })
+
+  cardImage.addEventListener('click', () => {
     openImagePopup(dataCard)
   })
+
   return cardElement
 }
 
-export function deleteCard(deleteButton, deleteCardFetch, cardId) {
-  const card = deleteButton.closest('.places__item')
-  deleteCardFetch(cardId)
-    .then(() => {
-      card.remove()
-    })
-    .catch((err) => {
-      console.error('Ошибка при удалении карточки:', err)
-    })
-}
-
-export function toggleLike(evt, cardId, likeCounter) {
-  if (evt.target.classList.contains('card__like-button_is-active')) {
-    removeLike(cardId)
-      .then((res) => {
-        evt.target.classList.toggle('card__like-button_is-active')
-        likeCounter.textContent = res.likes.length
-      })
-      .catch((err) => {
-        console.error('Ошибка при постановке лайка:', err)
-      })
+export function setLoadingState(button, isLoading, defaultText = 'Сохранить') {
+  if (isLoading) {
+    button.textContent = 'Сохранение...'
+    button.disabled = true
   } else {
-    addLike(cardId)
-      .then((res) => {
-        evt.target.classList.toggle('card__like-button_is-active')
-        likeCounter.textContent = res.likes.length
-      })
-      .catch((err) => {
-        console.error('Ошибка при удалении лайка:', err)
-      })
+    button.textContent = defaultText
+    button.disabled = false
   }
 }
