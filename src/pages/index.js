@@ -4,9 +4,8 @@ import {
   updateUserData,
   addNewCard,
   updateUserAvatar,
-  deleteCardFetch,
 } from '../components/api.js'
-import { createCard, setLoadingState } from '../components/card.js' // Импортируем setLoadingState
+import { createCard, setLoadingState } from '../components/card.js'
 import { enableValidation, resetValidation } from '../components/validation.js'
 import { openPopup, closePopup } from '../components/modal.js'
 import {
@@ -33,47 +32,55 @@ import {
 
 let currentUserId = null
 
-// Загрузка данных пользователя и карточек
-Promise.all([loadUserData(), getInitialCards()])
-  .then(([userData, cardsData]) => {
-    console.log('Данные пользователя:', userData)
-    console.log('Данные карточек:', cardsData)
+// Функция отображения ошибки в попапе
+function renderError(err) {
+  console.error('Ошибка:', err)
+  const errorPopup = document.createElement('div')
+  errorPopup.className = 'popup popup_type_error popup_opened'
+  errorPopup.innerHTML = `
+    <div class="popup__container">
+      <button type="button" class="popup__close"></button>
+      <h3 class="popup__title">Ошибка</h3>
+      <p class="popup__error-message">${err}</p>
+    </div>
+  `
+  document.body.appendChild(errorPopup)
 
-    if (
-      !userData ||
-      !userData.name ||
-      !userData.about ||
-      !userData.avatar ||
-      !userData._id
-    ) {
-      throw new Error('Данные пользователя неполные или отсутствуют')
+  const closeButton = errorPopup.querySelector('.popup__close')
+  closeButton.addEventListener('click', () => closePopup(errorPopup))
+  errorPopup.addEventListener('click', (evt) => {
+    if (evt.target === errorPopup) {
+      closePopup(errorPopup)
     }
-    if (!cardsData || !Array.isArray(cardsData)) {
-      throw new Error('Данные карточек неполные или отсутствуют')
-    }
+  })
+}
 
-    if (!profileName || !profileJob || !profileAvatar || !cardsContainer) {
-      throw new Error(
-        'Один из DOM-элементов не найден: profileName, profileJob, profileAvatar или cardsContainer'
-      )
+// Загрузка данных пользователя и карточек последовательно
+loadUserData()
+  .then((userData) => {
+    console.log('Получены данные пользователя:', userData)
+    if (!profileName || !profileJob || !profileAvatar) {
+      throw new Error('Не найдены элементы профиля в DOM')
     }
-
     profileName.textContent = userData.name
     profileJob.textContent = userData.about
     profileAvatar.src = userData.avatar
     currentUserId = userData._id
+    console.log('Обновлены элементы профиля:', {
+      name: profileName.textContent,
+      job: profileJob.textContent,
+      avatar: profileAvatar.src,
+    })
 
+    // Загружаем карточки только после получения userId
+    return getInitialCards()
+  })
+  .then((cardsData) => {
+    console.log('Получены карточки:', cardsData)
+    if (!cardsContainer) {
+      throw new Error('Не найден контейнер для карточек в DOM')
+    }
     cardsData.forEach((cardData) => {
-      if (
-        !cardData ||
-        !cardData.name ||
-        !cardData.link ||
-        !cardData.owner ||
-        !cardData._id
-      ) {
-        console.warn('Некорректные данные карточки:', cardData)
-        return
-      }
       const cardElement = createCard(
         cardData,
         toggleLike,
@@ -81,14 +88,15 @@ Promise.all([loadUserData(), getInitialCards()])
         currentUserId
       )
       if (!cardElement) {
-        console.warn('Не удалось создать карточку для данных:', cardData)
+        console.warn('Не удалось создать карточку:', cardData)
         return
       }
-      cardsContainer.prepend(cardElement)
+      cardsContainer.append(cardElement)
+      console.log('Добавлена карточка в DOM:', cardElement)
     })
   })
   .catch((err) => {
-    console.error('Ошибка при загрузке данных:', err)
+    renderError(`Не удалось загрузить данные: ${err}`)
   })
 
 // Функция переключения лайков
@@ -125,6 +133,7 @@ profileAddButton.addEventListener('click', () => {
 
 // Обработчик открытия формы редактирования аватара
 profileAvatarButton.addEventListener('click', () => {
+  formAvatar.reset()
   resetValidation(formAvatar, validationConfig)
   openPopup(popupAvatar)
 })
@@ -146,7 +155,9 @@ formEditProfile.addEventListener('submit', (evt) => {
       profileJob.textContent = res.about
       closePopup(popupEditProfile)
     })
-    .catch((err) => console.log(err))
+    .catch((err) => {
+      renderError(`Не удалось обновить профиль: ${err}`)
+    })
     .finally(() => setLoadingState(submitButton, false))
 })
 
@@ -171,8 +182,11 @@ formAddCard.addEventListener('submit', (evt) => {
       )
       cardsContainer.prepend(cardElement)
       closePopup(popupAddCard)
+      formAddCard.reset()
     })
-    .catch((err) => console.log(err))
+    .catch((err) => {
+      renderError(`Не удалось добавить карточку: ${err}`)
+    })
     .finally(() => setLoadingState(submitButton, false, 'Создать'))
 })
 
@@ -190,8 +204,11 @@ formAvatar.addEventListener('submit', (evt) => {
     .then((res) => {
       profileAvatar.src = res.avatar
       closePopup(popupAvatar)
+      formAvatar.reset()
     })
-    .catch((err) => console.log(err))
+    .catch((err) => {
+      renderError(`Не удалось обновить аватар: ${err}`)
+    })
     .finally(() => setLoadingState(submitButton, false))
 })
 

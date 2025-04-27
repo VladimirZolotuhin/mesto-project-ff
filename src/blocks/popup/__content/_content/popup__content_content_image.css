@@ -1,3 +1,13 @@
+.popup__content_content_avatar {
+  background-color: #fff;
+  border-radius: 10px;
+  box-sizing: border-box;
+  max-width: 430px;
+  min-height: 272px;
+  padding: 34px 36px;
+  position: relative;
+  width: 100%;
+}
 .popup__content_content_image {
   max-width: 75vw;
   max-height: 75vh;
