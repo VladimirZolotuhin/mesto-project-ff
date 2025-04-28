@@ -43,7 +43,21 @@ const popupImage = document.querySelector('.popup_type_image')
 const imageElement = popupImage.querySelector('.popup__image')
 const captionElement = popupImage.querySelector('.popup__caption')
 
-function handleDelete(cardElement, cardId) {
+const onSubmitButton = (element, selector) => {
+  const saveButton = element.querySelector(selector)
+  const originalText = saveButton.textContent
+  saveButton.textContent = 'Сохранение...'
+  saveButton.disabled = true
+
+  const onFinally = () => {
+    saveButton.textContent = originalText
+    saveButton.disabled = false
+  }
+
+  return onFinally
+}
+
+function handleDeleteCard(cardElement, cardId) {
   deleteCardFromServer(cardId)
     .then(() => {
       cardElement.remove()
@@ -53,7 +67,7 @@ function handleDelete(cardElement, cardId) {
     })
 }
 
-function handleLike(likeButton, counter, item) {
+function handleLikeCard(likeButton, counter, item) {
   const isLiked = likeButton.classList.contains('card__like-button_is-active')
   const action = isLiked ? removeLikeFromServer : addLikeToServer
 
@@ -84,10 +98,7 @@ function openImagePopup(link, name) {
 function handleNewCardSubmit(evt) {
   evt.preventDefault()
 
-  const saveButton = formNewCard.querySelector('.popup__button')
-  const originalText = saveButton.textContent
-  saveButton.textContent = 'Сохранение...'
-  saveButton.disabled = true
+  const onFinally = onSubmitButton(formNewCard, '.popup__button')
 
   const newCard = { name: placeNameInput.value, link: placeLinkInput.value }
 
@@ -95,8 +106,8 @@ function handleNewCardSubmit(evt) {
     .then((card) => {
       const cardElement = createCard(
         card,
-        (cardEl) => handleDelete(cardEl, card._id),
-        handleLike,
+        (cardEl) => handleDeleteCard(cardEl, card._id),
+        handleLikeCard,
         handleImageClick,
         currentUserId
       )
@@ -108,10 +119,7 @@ function handleNewCardSubmit(evt) {
     .catch((err) => {
       console.error('Ошибка при добавлении карточки:', err)
     })
-    .finally(() => {
-      saveButton.textContent = originalText
-      saveButton.disabled = false
-    })
+    .finally(onFinally)
 }
 
 formNewCard.addEventListener('submit', handleNewCardSubmit)
@@ -128,21 +136,18 @@ editButton.addEventListener('click', () => {
 buttonAvatar.addEventListener('click', () => openModal(popupAvatar))
 
 window.addEventListener('load', () => {
-  getUserProfile()
-    .then((data) => {
-      currentUserId = data._id
-      profileTitle.textContent = data.name
-      profileDescription.textContent = data.about
-      buttonAvatar.style.backgroundImage = `url('${data.avatar}')`
+  Promise.all([getUserProfile(), getInitialCards()])
+    .then(([userData, cards]) => {
+      currentUserId = userData._id
+      profileTitle.textContent = userData.name
+      profileDescription.textContent = userData.about
+      buttonAvatar.style.backgroundImage = `url('${userData.avatar}')`
 
-      return getInitialCards()
-    })
-    .then((cards) => {
       cards.forEach((item) => {
         const cardElement = createCard(
           item,
-          handleDelete,
-          handleLike,
+          handleDeleteCard,
+          handleLikeCard,
           handleImageClick,
           currentUserId
         )
@@ -157,10 +162,7 @@ window.addEventListener('load', () => {
 formEditAvatar.addEventListener('submit', (evt) => {
   evt.preventDefault()
 
-  const saveButton = formEditAvatar.querySelector('.popup__button')
-  const originalText = saveButton.textContent
-  saveButton.textContent = 'Сохранение...'
-  saveButton.disabled = true
+  const onFinally = onSubmitButton(formEditAvatar, '.popup__button')
 
   const newAvatarUrl = avatarInput.value
 
@@ -174,10 +176,7 @@ formEditAvatar.addEventListener('submit', (evt) => {
     .catch((err) => {
       console.error('Ошибка при обновлении аватара:', err)
     })
-    .finally(() => {
-      saveButton.textContent = originalText
-      saveButton.disabled = false
-    })
+    .finally(onFinally)
 })
 
 formEditProfile.addEventListener('submit', (evt) => {
@@ -186,13 +185,9 @@ formEditProfile.addEventListener('submit', (evt) => {
   const name = nameInput.value
   const about = jobInput.value
 
-  const saveButton = formEditProfile.querySelector('.popup__button')
-  const originalText = saveButton.textContent
-  saveButton.textContent = 'Сохранение...'
-  saveButton.disabled = true
+  const onFinally = onSubmitButton(formEditProfile, '.popup__button')
 
   editProfile(name, about)
-    .then(() => getUserProfile())
     .then((data) => {
       profileTitle.textContent = data.name
       profileDescription.textContent = data.about
@@ -202,10 +197,7 @@ formEditProfile.addEventListener('submit', (evt) => {
       console.error('Ошибка при обновлении профиля:', err)
       alert('Произошла ошибка при обновлении профиля: ' + err.message)
     })
-    .finally(() => {
-      saveButton.textContent = originalText
-      saveButton.disabled = false
-    })
+    .finally(onFinally)
 })
 
 const validationConfig = {
