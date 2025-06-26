@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Mesto</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="page">
+    <div class="page__content">
+      <header class="header page__section">
+        <img
+          src="<%=require('../images/logo.svg')%>"
+          alt="Логотип Mesto"
+          class="header__logo"
+        />
+      </header>
+      <main class="content">
+        <section class="profile page__section">
+          <div class="profile__avatar-container">
+            <img
+              src="<%=require('../images/avatar.jpg')%>"
+              alt="Аватар пользователя"
+              class="profile__image"
+            />
+            <button
+              class="profile__avatar"
+              type="button"
+              aria-label="Обновить аватар"
+            ></button>
+          </div>
+          <div class="profile__info">
+            <h1 class="profile__title">Жак-Ив Кусто</h1>
+            <button
+              class="profile__edit-button"
+              type="button"
+              aria-label="Редактировать профиль"
+            ></button>
+            <p class="profile__description">Исследователь океана</p>
+          </div>
+          <button
+            class="profile__add-button"
+            type="button"
+            aria-label="Добавить карточку"
+          ></button>
+        </section>
+        <section class="places page__section">
+          <ul class="places__list"></ul>
+        </section>
+      </main>
+      <footer class="footer page__section">
+        <p class="footer__copyright">© 2021 Mesto Russia</p>
+      </footer>
+
+      <div class="popup popup_is-animated popup_type_edit">
+        <div class="popup__container">
+          <button
+            type="button"
+            class="popup__close"
+            aria-label="Закрыть"
+          ></button>
+          <h3 class="popup__title">Редактировать профиль</h3>
+          <form class="popup__form popup__form_type_edit" name="edit-profile">
+            <div class="input__container">
+              <input
+                type="text"
+                name="name"
+                class="popup__input popup__input_type_name"
+                id="edit-profile-name"
+                placeholder="Имя"
+                minlength="2"
+                maxlength="40"
+                pattern="[A-Za-z\\u0400-\\u04FF\\s-]+"
+                data-error-message="Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы"
+                required
+              />
+              <span class="edit-profile-name-error popup__error"></span>
+            </div>
+            <div class="input__container">
+              <input
+                type="text"
+                name="description"
+                class="popup__input popup__input_type_job"
+                id="edit-profile-description"
+                placeholder="О себе"
+                minlength="2"
+                maxlength="200"
+                pattern="[A-Za-z\\u0400-\\u04FF\\s-]+"
+                data-error-message="Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы"
+                required
+              />
+              <span class="edit-profile-description-error popup__error"></span>
+            </div>
+            <button type="submit" class="popup__button">Сохранить</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="popup popup_is-animated popup_type_add">
+        <div class="popup__container">
+          <button
+            type="button"
+            class="popup__close"
+            aria-label="Закрыть"
+          ></button>
+          <h3 class="popup__title">Новое место</h3>
+          <form class="popup__form popup__form_type_add" name="new-place">
+            <div class="input__container">
+              <input
+                type="text"
+                name="place-name"
+                class="popup__input popup__input_type_card-name"
+                id="card-name"
+                placeholder="Название"
+                minlength="2"
+                maxlength="30"
+                pattern="[A-Za-z\\u0400-\\u04FF\\s-]+"
+                data-error-message="Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы"
+                required
+              />
+              <span class="card-name-error popup__error"></span>
+            </div>
+            <div class="input__container">
+              <input
+                type="url"
+                name="link"
+                class="popup__input popup__input_type_url"
+                id="card-url"
+                placeholder="Ссылка на картинку"
+                required
+              />
+              <span class="card-url-error popup__error"></span>
+            </div>
+            <button type="submit" class="popup__button">Создать</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="popup popup_is-animated popup_type_image">
+        <div class="popup__container popup__container_type_image">
+          <button
+            type="button"
+            class="popup__close"
+            aria-label="Закрыть"
+          ></button>
+          <img class="popup__image" src="#" alt="" />
+          <h2 class="popup__caption"></h2>
+        </div>
+      </div>
+
+      <div class="popup popup_is-animated popup_type_avatar">
+        <div class="popup__container">
+          <button
+            type="button"
+            class="popup__close"
+            aria-label="Закрыть"
+          ></button>
+          <h3 class="popup__title">Обновить аватар</h3>
+          <form class="popup__form popup__form_type_avatar" name="avatar">
+            <div class="input__container">
+              <input
+                type="url"
+                name="avatar-url"
+                class="popup__input popup__input_type_avatar"
+                id="avatar-url"
+                placeholder="Ссылка на аватар"
+                required
+              />
+              <span class="avatar-url-error popup__error"></span>
+            </div>
+            <button type="submit" class="popup__button">Сохранить</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="popup popup_is-animated popup_type_confirm">
+        <div class="popup__container">
+          <button
+            type="button"
+            class="popup__close"
+            aria-label="Закрыть"
+          ></button>
+          <form class="popup__form popup__form_type_confirm" name="confirm">
+            <h3 class="popup__title">Вы уверены?</h3>
+            <button type="submit" class="popup__button">Да</button>
+          </form>
+        </div>
+      </div>
+
+      <template id="card-template">
+        <li class="places__item">
+          <img class="card__image" src="#" alt="" />
+          <button class="card__delete-button" type="button"></button>
+          <div class="card__description">
+            <h2 class="card__title"></h2>
+            <div class="card__like-container">
+              <button class="card__like-button" type="button"></button>
+              <span class="card__like-counter">0</span>
+            </div>
+          </div>
+        </li>
+      </template>
+    </div>
+  </body>
+</html>

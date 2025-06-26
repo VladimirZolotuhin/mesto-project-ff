@@ -1,89 +1,75 @@
-const showInputError = (formElement, inputElement, errorMessage, config) => {
-  const errorElement = formElement.querySelector(`.${inputElement.id}-error`)
-  inputElement.classList.add(config.inputErrorClass)
+function showInputError(form, input, config, errorMessage) {
+  const errorElement = form.querySelector(`#${input.id}-error`)
+  input.classList.add(config.inputErrorClass)
   errorElement.textContent = errorMessage
   errorElement.classList.add(config.errorClass)
 }
 
-export const hideInputError = (formElement, inputElement, config) => {
-  const errorElement = formElement.querySelector(`.${inputElement.id}-error`)
-  inputElement.classList.remove(config.inputErrorClass)
-  errorElement.classList.remove(config.errorClass)
+function hideInputError(form, input, config) {
+  const errorElement = form.querySelector(`#${input.id}-error`)
+  input.classList.remove(config.inputErrorClass)
   errorElement.textContent = ''
+  errorElement.classList.remove(config.errorClass)
 }
 
-export function resetValidation(popup, config) {
-  const form = popup.querySelector(config.formSelector)
-  if (form) {
-    const inputs = form.querySelectorAll(config.inputSelector)
-    const button = form.querySelector(config.submitButtonSelector)
-    inputs.forEach((input) => {
-      hideInputError(form, input, config)
-    })
-    if (button) {
-      button.disabled = true
-      button.classList.add(config.inactiveButtonClass)
-    }
-  }
-}
-
-const isValid = (formElement, inputElement, config) => {
-  if (inputElement.classList.contains('popup__input_text')) {
-    const isValidInput = /^[a-zA-Zа-яА-ЯёЁ\s\-]+$/u.test(inputElement.value)
-    if (!isValidInput && inputElement.value) {
-      inputElement.setCustomValidity(
-        'Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы'
-      )
-    } else {
-      inputElement.setCustomValidity('')
-    }
-  }
-
-  if (!inputElement.validity.valid) {
-    showInputError(
-      formElement,
-      inputElement,
-      inputElement.validationMessage,
-      config
+function checkInputValidity(form, input, config) {
+  if (input.validity.patternMismatch) {
+    input.setCustomValidity(
+      'Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы.'
     )
+    input.dataset.errorMessage =
+      'Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы.'
   } else {
-    hideInputError(formElement, inputElement, config)
+    input.setCustomValidity('')
+    delete input.dataset.errorMessage
+  }
+
+  if (!input.validity.valid) {
+    const message = input.dataset.errorMessage || input.validationMessage
+    showInputError(form, input, config, message)
+  } else {
+    hideInputError(form, input, config)
   }
 }
 
-const hasInvalidInput = (inputList) => {
-  return inputList.some((inputElement) => {
-    return !inputElement.validity.valid
-  })
-}
-
-const toggleButtonState = (inputList, buttonElement, config) => {
-  if (hasInvalidInput(inputList)) {
-    buttonElement.disabled = true
-    buttonElement.classList.add(config.inactiveButtonClass)
+function toggleButtonState(inputs, button, config) {
+  const hasInvalidInput = inputs.some((input) => !input.validity.valid)
+  if (hasInvalidInput) {
+    button.classList.add(config.inactiveButtonClass)
+    button.disabled = true
   } else {
-    buttonElement.disabled = false
-    buttonElement.classList.remove(config.inactiveButtonClass)
+    button.classList.remove(config.inactiveButtonClass)
+    button.disabled = false
   }
 }
 
-const setEventListeners = (formElement, config) => {
-  const inputList = Array.from(
-    formElement.querySelectorAll(config.inputSelector)
-  )
-  const buttonElement = formElement.querySelector(config.submitButtonSelector)
-  toggleButtonState(inputList, buttonElement, config)
-  inputList.forEach((inputElement) => {
-    inputElement.addEventListener('input', () => {
-      isValid(formElement, inputElement, config)
-      toggleButtonState(inputList, buttonElement, config)
+function setEventListeners(form, config) {
+  const inputs = Array.from(form.querySelectorAll(config.inputSelector))
+  const button = form.querySelector(config.submitButtonSelector)
+
+  toggleButtonState(inputs, button, config)
+
+  inputs.forEach((input) => {
+    input.addEventListener('input', () => {
+      checkInputValidity(form, input, config)
+      toggleButtonState(inputs, button, config)
     })
   })
 }
 
-export const enableValidation = (config) => {
-  const formList = Array.from(document.querySelectorAll(config.formSelector))
-  formList.forEach((formElement) => {
-    setEventListeners(formElement, config)
+export function enableValidation(config) {
+  const forms = Array.from(document.querySelectorAll(config.formSelector))
+  forms.forEach((form) => {
+    setEventListeners(form, config)
   })
+}
+
+export function clearValidation(form, config) {
+  const inputs = Array.from(form.querySelectorAll(config.inputSelector))
+  const button = form.querySelector(config.submitButtonSelector)
+  inputs.forEach((input) => {
+    hideInputError(form, input, config)
+  })
+  button.classList.add(config.inactiveButtonClass)
+  button.disabled = true
 }
