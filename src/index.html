@@ -5,6 +5,9 @@
   <meta name="viewport"
         content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link rel="stylesheet" href="/pages/index.css" />
   <title>Mesto</title>
 </head>
 <body class="page">
@@ -39,7 +42,7 @@
       <form class="popup__form" name="edit-profile">
         <input type="text" name="name" class="popup__input popup__input_type_name" id="name-input" placeholder="Имя" required minlength="2" maxlength="40" pattern="^[a-zA-Zа-яА-ЯёЁ\- ]+$" data-message_error="Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы">
         <span id="name-input-error" class="form__input-error"></span>
-        <input type="text" name="description" class="popup__input popup__input_type_description" id="description-input" placeholder="Занятие" required minlength="2" maxlength="200" pattern="^[a-zA-Zа-яА-ЯёЁ\- ]+$" data-message_error="Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы">
+        <input type="text" name="description" class="popup__input popup__input_type_description" id="description-input" placeholder="Занятие" required minlength="2" maxlength="200"  pattern="^[a-zA-Zа-яА-ЯёЁ\- ]+$" data-message_error="Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы">
         <span id="description-input-error" class="form__input-error"></span>
         <button type="submit" class="button popup__button">Сохранить</button>
       </form>
@@ -61,7 +64,7 @@
   <div class="popup popup_type_image">
     <div class="popup__content popup__content_content_image">
       <button type="button" class="popup__close"></button>
-      <img src="" alt="" class="popup__image">
+      <img src="<%=require('./images/card_1.jpg')%>" alt="" class="popup__image">
       <p class="popup__caption"></p>
     </div>
   </div>
@@ -75,12 +78,12 @@
       <span id="email-input-error" class="form__input-error"></span>
       <button type="submit" class="button popup__button">Сохранить</button>
     </form>
-    <img src="" alt="" class="popup__image">
+    <img src="<%=require('./images/card_2.jpg')%>" alt="" class="popup__image">
     <p class="popup__caption"></p>
   </div>
 <template id="card-template">
   <li class="places__item card">
-    <img class="card__image" src="" alt="" />
+    <img class="card__image" src="<%=require('./images/card_3.jpg')%>" alt="" />
     <button type="button" class="card__delete-button"></button>
     <div class="card__description">
       <h2 class="card__title">

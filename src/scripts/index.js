@@ -1,4 +1,7 @@
-import { enableValidation, clearValidation } from '../components/validation.js'
+import {
+  startValidation,
+  resetValidationErrors,
+} from '../components/validation.js'
 import '../pages/index.css'
 import { createCard, deleteCard, putLike } from '../components/card.js'
 import { openModal, closeModal, closePopup } from '../components/modal.js'
@@ -10,7 +13,7 @@ import {
   addLikeToServer,
   removeLikeFromServer,
   deleteCardFromServer,
-  updateAvatar,
+  setUserAvatar,
 } from './api.js'
 
 const formEditProfile = document.querySelector(
@@ -114,7 +117,7 @@ function handleNewCardSubmit(evt) {
       placesList.prepend(cardElement)
       closeModal(popupAddCard)
       formNewCard.reset()
-      clearValidation(formNewCard, validationConfig)
+      resetValidationErrors(formNewCard, validationConfig)
     })
     .catch((err) => {
       console.error('Ошибка при добавлении карточки:', err)
@@ -129,7 +132,7 @@ addButton.addEventListener('click', () => openModal(popupAddCard))
 editButton.addEventListener('click', () => {
   nameInput.value = profileTitle.textContent
   jobInput.value = profileDescription.textContent
-  clearValidation(formEditProfile, validationConfig)
+  resetValidationErrors(formEditProfile, validationConfig)
   openModal(popupEditCard)
 })
 
@@ -166,12 +169,12 @@ formEditAvatar.addEventListener('submit', (evt) => {
 
   const newAvatarUrl = avatarInput.value
 
-  updateAvatar(newAvatarUrl)
+  setUserAvatar(newAvatarUrl)
     .then(() => {
       buttonAvatar.style.backgroundImage = `url('${newAvatarUrl}')`
       formEditAvatar.reset()
       closeModal(popupAvatar)
-      clearValidation(formEditAvatar, validationConfig)
+      resetValidationErrors(formEditAvatar, validationConfig)
     })
     .catch((err) => {
       console.error('Ошибка при обновлении аватара:', err)
@@ -209,4 +212,4 @@ const validationConfig = {
   errorClass: 'form__input-error_active',
 }
 
-enableValidation(validationConfig)
+startValidation(validationConfig)
