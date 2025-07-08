@@ -117,7 +117,6 @@ function handleNewCardSubmit(evt) {
       placesList.prepend(cardElement)
       closeModal(popupAddCard)
       formNewCard.reset()
-      resetValidationErrors(formNewCard, validationConfig)
     })
     .catch((err) => {
       console.error('Ошибка при добавлении карточки:', err)
@@ -127,7 +126,11 @@ function handleNewCardSubmit(evt) {
 
 formNewCard.addEventListener('submit', handleNewCardSubmit)
 
-addButton.addEventListener('click', () => openModal(popupAddCard))
+addButton.addEventListener('click', () => {
+  formNewCard.reset()
+  resetValidationErrors(formNewCard, validationConfig)
+  openModal(popupAddCard)
+})
 
 editButton.addEventListener('click', () => {
   nameInput.value = profileTitle.textContent
@@ -136,7 +139,11 @@ editButton.addEventListener('click', () => {
   openModal(popupEditCard)
 })
 
-buttonAvatar.addEventListener('click', () => openModal(popupAvatar))
+buttonAvatar.addEventListener('click', () => {
+  formEditAvatar.reset()
+  resetValidationErrors(formEditAvatar, validationConfig)
+  openModal(popupAvatar)
+})
 
 window.addEventListener('load', () => {
   Promise.all([getUserProfile(), getInitialCards()])
@@ -174,7 +181,6 @@ formEditAvatar.addEventListener('submit', (evt) => {
       buttonAvatar.style.backgroundImage = `url('${newAvatarUrl}')`
       formEditAvatar.reset()
       closeModal(popupAvatar)
-      resetValidationErrors(formEditAvatar, validationConfig)
     })
     .catch((err) => {
       console.error('Ошибка при обновлении аватара:', err)

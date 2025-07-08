@@ -14,14 +14,8 @@ function clearInputError(form, input, config) {
 
 function isInputValid(form, input, config) {
   if (input.validity.patternMismatch) {
-    input.setCustomValidity(
-      'Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы.'
-    )
     input.dataset.errorMessage =
       'Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы.'
-  } else {
-    input.setCustomValidity('')
-    delete input.dataset.errorMessage
   }
 
   if (!input.validity.valid) {
@@ -32,14 +26,22 @@ function isInputValid(form, input, config) {
   }
 }
 
+function disableSubmitButton(buttonElement, config) {
+  buttonElement.classList.add(config.inactiveButtonClass)
+  buttonElement.disabled = true
+}
+
+function enableSubmitButton(buttonElement, config) {
+  buttonElement.classList.remove(config.inactiveButtonClass)
+  buttonElement.disabled = false
+}
+
 function toggleSubmitButton(inputs, button, config) {
   const hasInvalidInput = inputs.some((input) => !input.validity.valid)
   if (hasInvalidInput) {
-    button.classList.add(config.inactiveButtonClass)
-    button.disabled = true
+    disableSubmitButton(button, config)
   } else {
-    button.classList.remove(config.inactiveButtonClass)
-    button.disabled = false
+    enableSubmitButton(button, config)
   }
 }
 
@@ -67,9 +69,10 @@ export function startValidation(config) {
 export function resetValidationErrors(form, config) {
   const inputs = Array.from(form.querySelectorAll(config.inputSelector))
   const button = form.querySelector(config.submitButtonSelector)
+
   inputs.forEach((input) => {
     clearInputError(form, input, config)
   })
-  button.classList.add(config.inactiveButtonClass)
-  button.disabled = true
+
+  disableSubmitButton(button, config)
 }
